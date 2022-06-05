@@ -106,7 +106,8 @@
 - Additional Logging information should be stored
   - Interaction times, interations include
     - adding/removing/editing consumption instance/ingredients/consumables/composite consumables, macrosets
-- External data should be importable via CSV
+- External data should be importable via CSV and exportable
+- regular snapshots
 
 
 
