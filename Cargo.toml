@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 # diesel = "1.4.8"
-sea-orm = { version = "^0", features = [ "sqlx-postgres", "runtime-tokio-rustls", "macros" ] }
+sea-orm = { version = "^0", features = [ "sqlx-postgres", "runtime-tokio-rustls", "macros", "debug-print"] }
 axum = "0.5.11"
 serde = "1.0.138"
 tokio = { version = "1", features = ["full"] }
