@@ -1,9 +1,16 @@
 [package]
-name = "MacroTracker"
+name = "macroTracker"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-diesel = "1.4.8"
+# diesel = "1.4.8"
+sea-orm = { version = "^0", features = [ "sqlx-postgres", "runtime-tokio-rustls", "macros" ] }
+axum = "0.5.11"
+serde = "1.0.138"
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1.35"
+tracing-subscriber = "0.3.14"
+tower-service = "0.3.2"

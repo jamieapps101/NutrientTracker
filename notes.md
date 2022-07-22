@@ -114,15 +114,15 @@
 
 - Definitions
   - object: [Targets, Users, Units, Nutrients, Consumables, CompositeConsumeable, Consumption Record ]
-  - action: [add, edit, modify, update]
+  - action: [add, edit, modify, update, delete]
   - summary: [sum,average]
   - timespan: [day,week,month]
   - granularity: [day,week,month]
 - Endpoints
   - /
     - loads homepage
-  - /{action}/{object}
-  - /{summary}/{timespan}/{granularity}
+  - /api/action/{action}/{object}
+  - /api/summary/{summary}/{timespan}/{granularity}
 
 
 
