@@ -211,3 +211,17 @@ Homepage
 ```zsh
   export DATABASE_URL=postgres://nt_user:example_password@127.0.0.1:5432/nt_db && .cargo/bin/sea-orm-cli migrate up --verbose
 ```
+- to get entities
+```zsh
+export DATABASE_URL=postgres://nt_user:example_password@127.0.0.1:5432/nt_db && .cargo/bin/sea-orm-cli generate entity \
+  --output-dir entity/src/entities \
+  --verbose \
+  --expanded-format \
+  --with-serde both
+
+
+  # --compact-format \
+```
+
+# TODO:
+- convert diy date time to chrono::NaiveDateTime, to make use of postgres built in date time type
