@@ -68,6 +68,27 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
+                    .table(Nutrients::Table)
+                    .if_not_exists()
+                    .col(
+                        ColumnDef::new(Nutrients::Id)
+                            .integer()
+                            .not_null()
+                            .auto_increment()
+                            .primary_key(),
+                    )
+                    .col(ColumnDef::new(Nutrients::Calories).float().not_null())
+                    .col(ColumnDef::new(Nutrients::Carbs).float().not_null())
+                    .col(ColumnDef::new(Nutrients::Protein).float().not_null())
+                    .col(ColumnDef::new(Nutrients::Fat).float().not_null())
+                    .col(ColumnDef::new(Nutrients::Source).float().not_null())
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_table(
+                Table::create()
                     .table(NutrientTargets::Table)
                     .if_not_exists()
                     .col(
@@ -106,7 +127,7 @@ impl MigrationTrait for Migration {
                     )
                     .foreign_key(
                         ForeignKey::create()
-                            .name("FK_NUTRIENTS")
+                            .name("FK_D_B")
                             .from(NutrientTargets::Table, NutrientTargets::DateBegin)
                             .to(Date::Table, Date::Id)
                             .on_delete(ForeignKeyAction::Cascade)
@@ -119,7 +140,7 @@ impl MigrationTrait for Migration {
                     )
                     .foreign_key(
                         ForeignKey::create()
-                            .name("FK_NUTRIENTS")
+                            .name("FK_D_E")
                             .from(NutrientTargets::Table, NutrientTargets::DateEnd)
                             .to(Date::Table, Date::Id)
                             .on_delete(ForeignKeyAction::Cascade)
@@ -143,27 +164,6 @@ impl MigrationTrait for Migration {
                     )
                     .col(ColumnDef::new(Units::Name).string().not_null())
                     .col(ColumnDef::new(Units::Abbreviation).string().not_null())
-                    .to_owned(),
-            )
-            .await?;
-
-        manager
-            .create_table(
-                Table::create()
-                    .table(Nutrients::Table)
-                    .if_not_exists()
-                    .col(
-                        ColumnDef::new(Nutrients::Id)
-                            .integer()
-                            .not_null()
-                            .auto_increment()
-                            .primary_key(),
-                    )
-                    .col(ColumnDef::new(Nutrients::Calories).float().not_null())
-                    .col(ColumnDef::new(Nutrients::Carbs).float().not_null())
-                    .col(ColumnDef::new(Nutrients::Protein).float().not_null())
-                    .col(ColumnDef::new(Nutrients::Fat).float().not_null())
-                    .col(ColumnDef::new(Nutrients::Source).float().not_null())
                     .to_owned(),
             )
             .await?;
@@ -195,7 +195,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Consumable::Nutrients).integer().not_null())
                     .foreign_key(
                         ForeignKey::create()
-                            .name("FK_PU")
+                            .name("FK_N")
                             .from(Consumable::Table, Consumable::Nutrients)
                             .to(Nutrients::Table, Nutrients::Id)
                             .on_delete(ForeignKeyAction::Cascade)
@@ -239,7 +239,7 @@ impl MigrationTrait for Migration {
                     )
                     .foreign_key(
                         ForeignKey::create()
-                            .name("FK_NUTRIENTS")
+                            .name("FK_CC")
                             .from(CompositeConsumable::Table, CompositeConsumable::PortionUnit)
                             .to(Units::Table, Units::Id)
                             .on_delete(ForeignKeyAction::Cascade)
@@ -283,7 +283,7 @@ impl MigrationTrait for Migration {
                     )
                     .foreign_key(
                         ForeignKey::create()
-                            .name("FK_NUTRIENTS")
+                            .name("FK_CC")
                             .from(CompositeConsumable::Table, CompositeConsumable::PortionUnit)
                             .to(Units::Table, Units::Id)
                             .on_delete(ForeignKeyAction::Cascade)
@@ -299,20 +299,16 @@ impl MigrationTrait for Migration {
                     .table(CompositeConsumableNutrients::Table)
                     .if_not_exists()
                     .col(
+                        ColumnDef::new(CompositeConsumableNutrients::Id)
+                            .integer()
+                            .not_null()
+                            .auto_increment()
+                            .primary_key(),
+                    )
+                    .col(
                         ColumnDef::new(CompositeConsumableNutrients::CompositeConsumableId)
                             .integer()
                             .not_null(),
-                    )
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("FK_CC_ID")
-                            .from(
-                                CompositeConsumableNutrients::Table,
-                                CompositeConsumableNutrients::CompositeConsumableId,
-                            )
-                            .to(CompositeConsumable::Table, CompositeConsumable::Id)
-                            .on_delete(ForeignKeyAction::Cascade)
-                            .on_update(ForeignKeyAction::Cascade),
                     )
                     .col(ColumnDef::new(CompositeConsumableNutrients::Consumable).integer())
                     .foreign_key(
@@ -331,7 +327,7 @@ impl MigrationTrait for Migration {
                     )
                     .foreign_key(
                         ForeignKey::create()
-                            .name("FK_SUB_C_ID")
+                            .name("FK_SUB_CC_ID")
                             .from(
                                 CompositeConsumableNutrients::Table,
                                 CompositeConsumableNutrients::CompositeConsumable,
@@ -540,6 +536,7 @@ enum CompositeConsumable {
 
 #[derive(Iden)]
 enum CompositeConsumableNutrients {
+    Id,
     Table,
     /// used to refer to the composite consumable that these nutrients belong to
     /// (Composite Consumable Table Id)

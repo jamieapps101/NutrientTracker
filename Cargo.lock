@@ -1626,7 +1626,7 @@ dependencies = [
  "chrono",
  "rust_decimal",
  "sea-query-derive",
- "sea-query-driver",
+ "sea-query-driver 0.1.1",
  "serde_json",
  "time 0.2.27",
  "uuid",
@@ -1639,6 +1639,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2997a3e57614c0ff2212890e143deadb4a31f8057cbe7fc163daa3f297a33527"
 dependencies = [
  "sea-query-derive",
+ "sea-query-driver 0.2.0",
 ]
 
 [[package]]
@@ -1659,6 +1660,17 @@ name = "sea-query-driver"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7e3953baee94dcb90f0e19e8b4b91b91e9394867b0fc1886d0221cfc6d0439f5"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "sea-query-driver"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fbda46eb3484cae1efb7bc68bca50f553a5b42c076cf4cbfae05b27f707549d4"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1947,11 +1959,13 @@ checksum = "6b69bf218860335ddda60d6ce85ee39f6cf6e5630e300e19757d1de15886a093"
 dependencies = [
  "ahash",
  "atoi 1.0.0",
+ "base64",
  "bitflags",
  "byteorder",
  "bytes",
  "crc 3.0.0",
  "crossbeam-queue",
+ "dirs",
  "either",
  "event-listener",
  "futures-channel",
@@ -1960,16 +1974,23 @@ dependencies = [
  "futures-util",
  "hashlink 0.8.0",
  "hex",
+ "hkdf",
+ "hmac",
  "indexmap",
  "itoa",
  "libc",
  "log",
+ "md-5",
  "memchr",
  "once_cell",
  "paste",
  "percent-encoding",
+ "rand",
  "rustls 0.20.6",
  "rustls-pemfile",
+ "serde",
+ "serde_json",
+ "sha-1",
  "sha2",
  "smallvec",
  "sqlformat",
@@ -1979,6 +2000,7 @@ dependencies = [
  "tokio-stream",
  "url",
  "webpki-roots 0.22.4",
+ "whoami",
 ]
 
 [[package]]

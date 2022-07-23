@@ -202,3 +202,12 @@ Homepage
 |________________________________________________________________|
 
 ```
+
+
+
+
+# Assorted
+- to run migration
+```zsh
+  export DATABASE_URL=postgres://nt_user:example_password@127.0.0.1:5432/nt_db && .cargo/bin/sea-orm-cli migrate up --verbose
+```

@@ -6,8 +6,10 @@ docker run \
     --interactive \
     --tty \
     --env POSTGRES_PASSWORD=example_password \
+    --env POSTGRES_USER=nt_user \
+    --env POSTGRES_DB=nt_db \
     --name  postgres_inst \
     --rm \
-    --expose 8080 \
     --network="host" \
     postgres:14.3-bullseye
+    # --expose=5432 \
