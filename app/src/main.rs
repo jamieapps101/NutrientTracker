@@ -4,13 +4,13 @@ mod types;
 use axum::{
     async_trait,
     body::Body,
-    extract::{Extension, FromRequest, RequestParts},
-    extract::{MatchedPath, Path},
+    extract::{Extension, FromRequest, MatchedPath, Path, Query, RequestParts},
     http::{Request, Response, StatusCode},
     response::Html,
-    routing::get,
+    routing::{get, get_service, post},
     Router,
 };
+use chrono::{Datelike, Timelike, Utc};
 // use sqlx::postgres::{PgPool, PgPoolOptions};
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -19,6 +19,16 @@ use std::{convert::Infallible, net::SocketAddr, time::Duration};
 
 use std::sync::Arc;
 use tokio::sync::Mutex;
+
+use tower::ServiceBuilder;
+use tower_http::services::ServeDir;
+
+use itertools::Itertools;
+
+use entity::prelude::*;
+use sea_orm::{entity::Set, ActiveModelTrait, EntityTrait};
+
+use serde::{Deserialize, Serialize};
 
 #[tokio::main]
 async fn main() {
@@ -40,19 +50,33 @@ async fn main() {
 
     let counter = Arc::new(Mutex::new(0));
 
+    //
+    // let user_routes = Router::new().route("/:id", get(|| async {}));
+    // let team_routes = Router::new().route("/", post(|| async {}));
+    // let api_routes = Router::new()
+    //     .nest("/users", user_routes)
+    //     .nest("/teams", team_routes);
+    let api_routes = Router::new().route("/", get(serve)).layer(Extension(db));
+
     // build our application with some routes
     let app = Router::new()
-        .route("/", get(serve))
         .route(
-            "/count",
-            get(|req: Request<Body>| async move {
-                let mut counter_ref = counter.lock().await;
-                *counter_ref += 1;
-                Html(format!("<h1>I've been loaded {} times!</h1>", *counter_ref))
-            }),
+            "/",
+            get_service(ServeDir::new("../frontend").append_index_html_on_directories(true))
+                .handle_error(|_error: std::io::Error| async move { println!("oh dear") }),
         )
-        .route("/api/:action", get(action));
-    //     .layer(Extension(pool));
+        .nest("/api", api_routes);
+
+    // .route(
+    //     "/count",
+    //     get(|req: Request<Body>| async move {
+    //         let mut counter_ref = counter.lock().await;
+    //         *counter_ref += 1;
+    //         Html(format!("<h1>I've been loaded {} times!</h1>", *counter_ref))
+    //     }),
+    // )
+    // .route("/api/:action", get(action))
+    // .layer(ServiceBuilder::new().layer(Extension(db)));
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     axum::Server::bind(&addr)
@@ -61,9 +85,47 @@ async fn main() {
         .unwrap();
 }
 
-async fn serve(req: Request<Body>) -> Result<Response<Body>, Infallible> {
-    println!("req: {:?}", req);
-    let res = Response::new(Body::from("Hi from `GET /`"));
+#[derive(Deserialize)]
+struct Params {
+    page: Option<usize>,
+    posts_per_page: Option<usize>,
+}
+
+async fn serve(
+    Extension(ref conn): Extension<DatabaseConnection>,
+) -> Result<Response<Body>, Infallible> {
+    // println!("req: {:?}", req);
+    let now = Utc::now();
+
+    let time = entity::time::ActiveModel {
+        hour: Set(now.hour() as i16),
+        minute: Set(now.minute() as i16),
+        second: Set(now.second() as i16),
+        ..Default::default()
+    };
+    let time_res: Result<entity::time::Model, sea_orm::DbErr> = time.insert(conn).await;
+    let res = match time_res {
+        Ok(_time) => {
+            // retreive all
+            let dates_res = Time::find()
+                .into_model::<entity::time::Model>()
+                .all(conn)
+                .await;
+            match dates_res {
+                Ok(dates) => {
+                    let mut response_string: String = "Hi from `GET /`".to_owned();
+
+                    if dates.len() > 0 {
+                        response_string += "\nI previously said hi on: \n";
+                        response_string += &dates.iter().map(|d| format!("- {d:?}")).join("\n")
+                    }
+                    Response::new(Body::from(response_string))
+                }
+                Err(_db_err) => Response::new(Body::from("Hi from `GET /` (db retrieve err)")),
+            }
+        }
+        Err(_db_err) => Response::new(Body::from("Hi from `GET /` (db insert err)")),
+    };
     Ok::<_, Infallible>(res)
 }
 
@@ -126,10 +188,6 @@ impl Service<i32> for AtomicCounter {
 #[cfg(test)]
 mod test {
     use super::*;
-    use entity::prelude::*;
-    use sea_orm::entity::Set;
-    use sea_orm::ActiveModelTrait;
-    use sea_orm::EntityTrait;
 
     #[tokio::test]
     async fn test_db_connection() {
