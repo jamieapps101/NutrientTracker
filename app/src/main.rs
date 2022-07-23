@@ -27,16 +27,16 @@ async fn main() {
         .with_test_writer()
         .init();
 
-    // let db_connection_str = std::env::var("DATABASE_URL")
+    let db_connection_str = std::env::var("DATABASE_URL").unwrap();
     //     .unwrap_or("postgres://username:password@host/database".to_string());
 
     // setup connection
-    // let mut opt = ConnectOptions::new(db_connection_str);
-    // opt.max_connections(5)
-    //     .connect_timeout(Duration::from_secs(3));
-    // let db: DatabaseConnection = Database::connect(opt)
-    //     .await
-    //     .expect("cannot connect to database");
+    let mut opt = ConnectOptions::new(db_connection_str);
+    opt.max_connections(5)
+        .connect_timeout(Duration::from_secs(3));
+    let db: DatabaseConnection = Database::connect(opt)
+        .await
+        .expect("cannot connect to database");
 
     let counter = Arc::new(Mutex::new(0));
 
@@ -120,5 +120,47 @@ impl Service<i32> for AtomicCounter {
             *counter_ref += req;
             Ok(*counter_ref)
         })
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use entity::prelude::*;
+    use sea_orm::entity::Set;
+    use sea_orm::ActiveModelTrait;
+    use sea_orm::EntityTrait;
+
+    #[tokio::test]
+    async fn test_db_connection() {
+        let db_connection_str = std::env::var("DATABASE_URL").unwrap();
+        //     .unwrap_or("postgres://username:password@host/database".to_string());
+
+        // setup connection
+        let mut opt = ConnectOptions::new(db_connection_str);
+        opt.max_connections(5)
+            .connect_timeout(Duration::from_secs(3));
+        let db: DatabaseConnection = Database::connect(opt)
+            .await
+            .expect("cannot connect to database");
+
+        let date: entity::date::ActiveModel = entity::date::ActiveModel {
+            day: Set(0),
+            month: Set(0),
+            year: Set(0),
+            ..Default::default()
+        };
+        let date: entity::date::Model = date.insert(&db).await.unwrap();
+        println!("added date: {date:?}");
+
+        // retreive all
+        let dates = Date::find()
+            .into_model::<entity::date::Model>()
+            .all(&db)
+            .await
+            .unwrap();
+        dates.iter().for_each(|d| {
+            println!("{d:?}");
+        });
     }
 }

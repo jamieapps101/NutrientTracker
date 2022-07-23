@@ -16,3 +16,9 @@ tracing-subscriber = "0.3.14"
 tower-service = "0.3.2"
 
 entity = { path = "../entity"}
+
+# reads .env file in base dir
+# dotenv = "0.15.0"
+
+# html templating library
+# tera = "1.16.0"
