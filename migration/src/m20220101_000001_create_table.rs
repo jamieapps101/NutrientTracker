@@ -9,9 +9,6 @@ pub struct Migration;
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        // Replace the sample below with your own migration scripts
-        // todo!();
-
         manager
             .create_table(
                 Table::create()
@@ -420,10 +417,42 @@ impl MigrationTrait for Migration {
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        // Replace the sample below with your own migration scripts
         manager
             .drop_table(Table::drop().table(Users::Table).to_owned())
-            .await
+            .await?;
+        manager
+            .drop_table(Table::drop().table(Time::Table).to_owned())
+            .await?;
+        manager
+            .drop_table(Table::drop().table(Date::Table).to_owned())
+            .await?;
+        manager
+            .drop_table(Table::drop().table(NutrientTargets::Table).to_owned())
+            .await?;
+        manager
+            .drop_table(Table::drop().table(Units::Table).to_owned())
+            .await?;
+        manager
+            .drop_table(Table::drop().table(Nutrients::Table).to_owned())
+            .await?;
+        manager
+            .drop_table(Table::drop().table(Consumable::Table).to_owned())
+            .await?;
+        manager
+            .drop_table(Table::drop().table(CompositeConsumable::Table).to_owned())
+            .await?;
+        manager
+            .drop_table(
+                Table::drop()
+                    .table(CompositeConsumableNutrients::Table)
+                    .to_owned(),
+            )
+            .await?;
+        manager
+            .drop_table(Table::drop().table(ConsumptionRecord::Table).to_owned())
+            .await?;
+
+        Ok(())
     }
 }
 
