@@ -11,4 +11,4 @@ pub mod nutrients;
 pub mod seaql_migrations;
 pub mod sessions;
 pub mod units;
-pub mod users;
+pub mod user_accounts;

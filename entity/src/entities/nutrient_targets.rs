@@ -45,7 +45,7 @@ impl PrimaryKeyTrait for PrimaryKey {
 #[derive(Copy, Clone, Debug, EnumIter)]
 pub enum Relation {
     Nutrients,
-    Users,
+    UserAccounts,
 }
 
 impl ColumnTrait for Column {
@@ -68,9 +68,9 @@ impl RelationTrait for Relation {
                 .from(Column::TargetNutrients)
                 .to(super::nutrients::Column::Id)
                 .into(),
-            Self::Users => Entity::belongs_to(super::users::Entity)
+            Self::UserAccounts => Entity::belongs_to(super::user_accounts::Entity)
                 .from(Column::User)
-                .to(super::users::Column::Id)
+                .to(super::user_accounts::Column::Id)
                 .into(),
         }
     }
@@ -82,9 +82,9 @@ impl Related<super::nutrients::Entity> for Entity {
     }
 }
 
-impl Related<super::users::Entity> for Entity {
+impl Related<super::user_accounts::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Users.def()
+        Relation::UserAccounts.def()
     }
 }
 

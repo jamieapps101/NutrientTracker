@@ -12,17 +12,22 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table(Users::Table)
+                    .table(UserAccounts::Table)
                     .if_not_exists()
                     .col(
-                        ColumnDef::new(Users::Id)
+                        ColumnDef::new(UserAccounts::Id)
                             .integer()
                             .not_null()
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Users::Name).string().not_null())
-                    .col(ColumnDef::new(Users::PasswordHash).string().not_null())
+                    .col(ColumnDef::new(UserAccounts::Name).string().not_null())
+                    .col(ColumnDef::new(UserAccounts::Salt).string().not_null())
+                    .col(
+                        ColumnDef::new(UserAccounts::PasswordHash)
+                            .string()
+                            .not_null(),
+                    )
                     .to_owned(),
             )
             .await?;
@@ -84,7 +89,7 @@ impl MigrationTrait for Migration {
                         ForeignKey::create()
                             .name("FK_USER")
                             .from(NutrientTargets::Table, NutrientTargets::User)
-                            .to(Users::Table, Users::Id)
+                            .to(UserAccounts::Table, UserAccounts::Id)
                             .on_delete(ForeignKeyAction::Cascade)
                             .on_update(ForeignKeyAction::Cascade),
                     )
@@ -327,7 +332,7 @@ impl MigrationTrait for Migration {
                         ForeignKey::create()
                             .name("FK_USER_ID")
                             .from(ConsumptionRecord::Table, ConsumptionRecord::User)
-                            .to(Users::Table, Users::Id)
+                            .to(UserAccounts::Table, UserAccounts::Id)
                             .on_delete(ForeignKeyAction::Cascade)
                             .on_update(ForeignKeyAction::Cascade),
                     )
@@ -362,7 +367,7 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(Users::Table).to_owned())
+            .drop_table(Table::drop().table(UserAccounts::Table).to_owned())
             .await?;
         manager
             .drop_table(Table::drop().table(NutrientTargets::Table).to_owned())
@@ -404,10 +409,11 @@ enum Sessions {
 }
 
 #[derive(Iden)]
-enum Users {
+enum UserAccounts {
     Id,
     Table,
     Name,
+    Salt,
     PasswordHash,
 }
 
@@ -415,7 +421,7 @@ enum Users {
 enum NutrientTargets {
     Id,
     Table,
-    /// Users Table Id
+    /// UserAccounts Table Id
     User,
     /// Nutrient Table Id
     TargetNutrients,
@@ -487,7 +493,7 @@ enum CompositeConsumableNutrients {
 enum ConsumptionRecord {
     Id,
     Table,
-    /// (Users Table Id)
+    /// (UserAccounts Table Id)
     User,
     /// (Consumable table id)
     Consumable,

@@ -9,4 +9,4 @@ pub use super::nutrients::Entity as Nutrients;
 pub use super::seaql_migrations::Entity as SeaqlMigrations;
 pub use super::sessions::Entity as Sessions;
 pub use super::units::Entity as Units;
-pub use super::users::Entity as Users;
+pub use super::user_accounts::Entity as UserAccounts;
