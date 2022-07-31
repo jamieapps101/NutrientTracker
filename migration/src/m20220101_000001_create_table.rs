@@ -30,37 +30,18 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table(Time::Table)
+                    .table(Sessions::Table)
                     .if_not_exists()
                     .col(
-                        ColumnDef::new(Time::Id)
+                        ColumnDef::new(Sessions::Id)
                             .integer()
                             .not_null()
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Time::Second).tiny_integer().not_null())
-                    .col(ColumnDef::new(Time::Minute).tiny_integer().not_null())
-                    .col(ColumnDef::new(Time::Hour).tiny_integer().not_null())
-                    .to_owned(),
-            )
-            .await?;
-
-        manager
-            .create_table(
-                Table::create()
-                    .table(Date::Table)
-                    .if_not_exists()
-                    .col(
-                        ColumnDef::new(Date::Id)
-                            .integer()
-                            .not_null()
-                            .auto_increment()
-                            .primary_key(),
-                    )
-                    .col(ColumnDef::new(Date::Day).tiny_integer().not_null())
-                    .col(ColumnDef::new(Date::Month).tiny_integer().not_null())
-                    .col(ColumnDef::new(Date::Year).small_integer().not_null())
+                    .col(ColumnDef::new(Sessions::UserId).integer().not_null())
+                    .col(ColumnDef::new(Sessions::StartTime).date_time().not_null())
+                    .col(ColumnDef::new(Sessions::LastActive).date_time().not_null())
                     .to_owned(),
             )
             .await?;
@@ -122,29 +103,13 @@ impl MigrationTrait for Migration {
                     )
                     .col(
                         ColumnDef::new(NutrientTargets::DateBegin)
-                            .integer()
+                            .date_time()
                             .not_null(),
-                    )
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("FK_D_B")
-                            .from(NutrientTargets::Table, NutrientTargets::DateBegin)
-                            .to(Date::Table, Date::Id)
-                            .on_delete(ForeignKeyAction::Cascade)
-                            .on_update(ForeignKeyAction::Cascade),
                     )
                     .col(
                         ColumnDef::new(NutrientTargets::DateEnd)
-                            .integer()
+                            .date_time()
                             .not_null(),
-                    )
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("FK_D_E")
-                            .from(NutrientTargets::Table, NutrientTargets::DateEnd)
-                            .to(Date::Table, Date::Id)
-                            .on_delete(ForeignKeyAction::Cascade)
-                            .on_update(ForeignKeyAction::Cascade),
                     )
                     .to_owned(),
             )
@@ -387,24 +352,7 @@ impl MigrationTrait for Migration {
                             .on_delete(ForeignKeyAction::Cascade)
                             .on_update(ForeignKeyAction::Cascade),
                     )
-                    .col(ColumnDef::new(ConsumptionRecord::Time).integer())
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("FK_T_ID")
-                            .from(ConsumptionRecord::Table, ConsumptionRecord::Time)
-                            .to(Time::Table, Time::Id)
-                            .on_delete(ForeignKeyAction::Cascade)
-                            .on_update(ForeignKeyAction::Cascade),
-                    )
-                    .col(ColumnDef::new(ConsumptionRecord::Date).integer())
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("FK_D_ID")
-                            .from(ConsumptionRecord::Table, ConsumptionRecord::Date)
-                            .to(Date::Table, Date::Id)
-                            .on_delete(ForeignKeyAction::Cascade)
-                            .on_update(ForeignKeyAction::Cascade),
-                    )
+                    .col(ColumnDef::new(ConsumptionRecord::DateTime).date_time())
                     .to_owned(),
             )
             .await?;
@@ -415,12 +363,6 @@ impl MigrationTrait for Migration {
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
             .drop_table(Table::drop().table(Users::Table).to_owned())
-            .await?;
-        manager
-            .drop_table(Table::drop().table(Time::Table).to_owned())
-            .await?;
-        manager
-            .drop_table(Table::drop().table(Date::Table).to_owned())
             .await?;
         manager
             .drop_table(Table::drop().table(NutrientTargets::Table).to_owned())
@@ -453,29 +395,20 @@ impl MigrationTrait for Migration {
 }
 
 #[derive(Iden)]
+enum Sessions {
+    Id,
+    Table,
+    UserId,
+    StartTime,
+    LastActive,
+}
+
+#[derive(Iden)]
 enum Users {
     Id,
     Table,
     Name,
     PasswordHash,
-}
-
-#[derive(Iden)]
-enum Time {
-    Id,
-    Table,
-    Second,
-    Minute,
-    Hour,
-}
-
-#[derive(Iden)]
-enum Date {
-    Id,
-    Table,
-    Day,
-    Month,
-    Year,
 }
 
 #[derive(Iden)]
@@ -560,7 +493,6 @@ enum ConsumptionRecord {
     Consumable,
     /// (Composite Consumable table id)
     CompositeConsumable,
-    Time,
     /// possibly a single time-date field depending on DB
-    Date,
+    DateTime,
 }
