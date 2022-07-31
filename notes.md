@@ -115,6 +115,7 @@
 - Definitions
   - object: [Targets, Users, Units, Nutrients, Consumables, CompositeConsumeable, Consumption Record ]
   - action: [add, edit, modify, update, delete]
+    - all of these actions send some quantity of data, and all of them return the UID of the object they affected.
   - summary: [sum,average]
   - timespan: [day,week,month]
   - granularity: [day,week,month]

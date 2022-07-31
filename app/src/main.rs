@@ -1,5 +1,5 @@
 mod api;
-mod types;
+mod util;
 
 use axum::{
     async_trait,
@@ -115,7 +115,7 @@ async fn serve(
     //             Ok(dates) => {
     //                 let mut response_string: String = "Hi from `GET /`".to_owned();
 
-    //                 if dates.len() > 0 {
+    //                 if !dates.is_empty() {
     //                     response_string += "\nI previously said hi on: \n";
     //                     response_string += &dates.iter().map(|d| format!("- {d:?}")).join("\n")
     //                 }
