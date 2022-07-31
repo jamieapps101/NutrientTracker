@@ -95,38 +95,39 @@ async fn serve(
     Extension(ref conn): Extension<DatabaseConnection>,
 ) -> Result<Response<Body>, Infallible> {
     // println!("req: {:?}", req);
-    let now = Utc::now();
+    // let now = Utc::now();
 
-    let time = entity::time::ActiveModel {
-        hour: Set(now.hour() as i16),
-        minute: Set(now.minute() as i16),
-        second: Set(now.second() as i16),
-        ..Default::default()
-    };
-    let time_res: Result<entity::time::Model, sea_orm::DbErr> = time.insert(conn).await;
-    let res = match time_res {
-        Ok(_time) => {
-            // retreive all
-            let dates_res = Time::find()
-                .into_model::<entity::time::Model>()
-                .all(conn)
-                .await;
-            match dates_res {
-                Ok(dates) => {
-                    let mut response_string: String = "Hi from `GET /`".to_owned();
+    // let time = entity::time::ActiveModel {
+    //     hour: Set(now.hour() as i16),
+    //     minute: Set(now.minute() as i16),
+    //     second: Set(now.second() as i16),
+    //     ..Default::default()
+    // };
+    // let time_res: Result<entity::time::Model, sea_orm::DbErr> = time.insert(conn).await;
+    // let res = match time_res {
+    //     Ok(_time) => {
+    //         // retreive all
+    //         let dates_res = Time::find()
+    //             .into_model::<entity::time::Model>()
+    //             .all(conn)
+    //             .await;
+    //         match dates_res {
+    //             Ok(dates) => {
+    //                 let mut response_string: String = "Hi from `GET /`".to_owned();
 
-                    if dates.len() > 0 {
-                        response_string += "\nI previously said hi on: \n";
-                        response_string += &dates.iter().map(|d| format!("- {d:?}")).join("\n")
-                    }
-                    Response::new(Body::from(response_string))
-                }
-                Err(_db_err) => Response::new(Body::from("Hi from `GET /` (db retrieve err)")),
-            }
-        }
-        Err(_db_err) => Response::new(Body::from("Hi from `GET /` (db insert err)")),
-    };
-    Ok::<_, Infallible>(res)
+    //                 if dates.len() > 0 {
+    //                     response_string += "\nI previously said hi on: \n";
+    //                     response_string += &dates.iter().map(|d| format!("- {d:?}")).join("\n")
+    //                 }
+    //                 Response::new(Body::from(response_string))
+    //             }
+    //             Err(_db_err) => Response::new(Body::from("Hi from `GET /` (db retrieve err)")),
+    //         }
+    //     }
+    //     Err(_db_err) => Response::new(Body::from("Hi from `GET /` (db insert err)")),
+    // };
+    // Ok::<_, Infallible>(res)
+    todo!()
 }
 
 async fn action(req: Request<Body>) {
