@@ -1,4 +1,5 @@
 mod api;
+mod snapshot;
 mod util;
 
 use axum::{
@@ -10,7 +11,6 @@ use axum::{
     routing::{get, get_service, post},
     Router,
 };
-use chrono::{Datelike, Timelike, Utc};
 // use sqlx::postgres::{PgPool, PgPoolOptions};
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -30,6 +30,9 @@ use sea_orm::{entity::Set, ActiveModelTrait, EntityTrait};
 
 use serde::{Deserialize, Serialize};
 
+use rand::prelude::*;
+use rand_hc::Hc128Rng;
+
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt()
@@ -38,6 +41,7 @@ async fn main() {
         .init();
 
     let db_connection_str = std::env::var("DATABASE_URL").unwrap();
+    let db_name = std::env::var("DATABASE_NAME").unwrap();
     //     .unwrap_or("postgres://username:password@host/database".to_string());
 
     // setup connection
@@ -66,6 +70,9 @@ async fn main() {
                 .handle_error(|_error: std::io::Error| async move { println!("oh dear") }),
         )
         .nest("/api", api_routes);
+
+    // todo handle this better, though worth panic-ing if we can't get a good RNG
+    let rng = Hc128Rng::from_rng(thread_rng()).unwrap();
 
     // .route(
     //     "/count",
@@ -186,40 +193,40 @@ impl Service<i32> for AtomicCounter {
     }
 }
 
-#[cfg(test)]
-mod test {
-    use super::*;
+// #[cfg(test)]
+// mod test {
+//     use super::*;
 
-    #[tokio::test]
-    async fn test_db_connection() {
-        let db_connection_str = std::env::var("DATABASE_URL").unwrap();
-        //     .unwrap_or("postgres://username:password@host/database".to_string());
+//     #[tokio::test]
+//     async fn test_db_connection() {
+//         let db_connection_str = std::env::var("DATABASE_URL").unwrap();
+//         //     .unwrap_or("postgres://username:password@host/database".to_string());
 
-        // setup connection
-        let mut opt = ConnectOptions::new(db_connection_str);
-        opt.max_connections(5)
-            .connect_timeout(Duration::from_secs(3));
-        let db: DatabaseConnection = Database::connect(opt)
-            .await
-            .expect("cannot connect to database");
+//         // setup connection
+//         let mut opt = ConnectOptions::new(db_connection_str);
+//         opt.max_connections(5)
+//             .connect_timeout(Duration::from_secs(3));
+//         let db: DatabaseConnection = Database::connect(opt)
+//             .await
+//             .expect("cannot connect to database");
 
-        let date: entity::date::ActiveModel = entity::date::ActiveModel {
-            day: Set(0),
-            month: Set(0),
-            year: Set(0),
-            ..Default::default()
-        };
-        let date: entity::date::Model = date.insert(&db).await.unwrap();
-        println!("added date: {date:?}");
+//         let date: entity::date::ActiveModel = entity::date::ActiveModel {
+//             day: Set(0),
+//             month: Set(0),
+//             year: Set(0),
+//             ..Default::default()
+//         };
+//         let date: entity::date::Model = date.insert(&db).await.unwrap();
+//         println!("added date: {date:?}");
 
-        // retreive all
-        let dates = Date::find()
-            .into_model::<entity::date::Model>()
-            .all(&db)
-            .await
-            .unwrap();
-        dates.iter().for_each(|d| {
-            println!("{d:?}");
-        });
-    }
-}
+//         // retreive all
+//         let dates = Date::find()
+//             .into_model::<entity::date::Model>()
+//             .all(&db)
+//             .await
+//             .unwrap();
+//         dates.iter().for_each(|d| {
+//             println!("{d:?}");
+//         });
+//     }
+// }

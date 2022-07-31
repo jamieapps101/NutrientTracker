@@ -14,9 +14,10 @@ use std::{convert::Infallible, net::SocketAddr};
 
 use entity::{prelude::Sessions, *};
 
-use crate::util;
+mod login;
+pub use login::*;
 
-// TODO add in login managment API functions here
+use crate::util;
 
 /// todo: make generic on any type that can be deserialised and transmitted into the db
 async fn add<
@@ -43,7 +44,11 @@ async fn add<
         SessionValidation::Timeout => {
             todo!()
         }
-        SessionValidation::DBErr(err) => {}
+        SessionValidation::DBErr(err) => {
+            // panic for now
+            panic!("DB error in add handler: {err}");
+            // todo: handle properly lat
+        }
     }
     // convert to active model
     let data: AM = data.into_active_model();
@@ -64,6 +69,8 @@ enum SessionValidation {
     DBErr(sea_orm::DbErr),
 }
 
+/// Authenticate a session id is valid. If it is, update the last active time to keep it valid
+/// for the next time period.
 async fn is_valid_session(session_id: u32, conn: &DatabaseConnection) -> SessionValidation {
     if cfg!(test) {
         // running in test mode

@@ -13,9 +13,12 @@ impl<T> Transmission<T> {
     }
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct LoginRequest {
-    username: String,
-    password_hash: String,
+    pub username: String,
+    // pub email: String,
+    /// Hash users password on client side, then send hash over for hashing on server side
+    pub password_hash: String,
 }
 
 pub enum LoginReply {

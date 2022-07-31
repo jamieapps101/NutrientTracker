@@ -227,3 +227,10 @@ export DATABASE_URL=postgres://nt_user:example_password@127.0.0.1:5432/nt_db && 
 # TODO:
 - convert diy date time to chrono::NaiveDateTime, to make use of postgres built in date time type
 - add run-web-server.sh script to run docker container frontend webserver
+- add in method to take db snapshots
+- add in config file
+  - timeout period
+  - snapshot period/retention
+    - see https://www.postgresql.org/docs/current/backup-dump.html
+    - single async task, running at config spec-ed period, running pg_dump
+- add proper response codes

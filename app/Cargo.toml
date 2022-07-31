@@ -19,6 +19,9 @@ tower-http = { version = "0.3.3", features = ["fs"] }
 entity = { path = "../entity"}
 chrono = "0.4.19"
 itertools = "0.10.3"
+sha3 = "0.10.2"
+rand = "0.8.4"
+rand_hc = "0.3.1"
 # reads .env file in base dir
 # dotenv = "0.15.0"
 
