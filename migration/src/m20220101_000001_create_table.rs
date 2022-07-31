@@ -22,10 +22,10 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(UserAccounts::Name).string().not_null())
-                    .col(ColumnDef::new(UserAccounts::Salt).string().not_null())
+                    .col(ColumnDef::new(UserAccounts::Salt).binary().not_null())
                     .col(
                         ColumnDef::new(UserAccounts::PasswordHash)
-                            .string()
+                            .binary()
                             .not_null(),
                     )
                     .to_owned(),

@@ -16,8 +16,8 @@ impl EntityName for Entity {
 pub struct Model {
     pub id: i32,
     pub name: String,
-    pub salt: String,
-    pub password_hash: String,
+    pub salt: Vec<u8>,
+    pub password_hash: Vec<u8>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
@@ -52,8 +52,8 @@ impl ColumnTrait for Column {
         match self {
             Self::Id => ColumnType::Integer.def(),
             Self::Name => ColumnType::String(None).def(),
-            Self::Salt => ColumnType::String(None).def(),
-            Self::PasswordHash => ColumnType::String(None).def(),
+            Self::Salt => ColumnType::Binary.def(),
+            Self::PasswordHash => ColumnType::Binary.def(),
         }
     }
 }
