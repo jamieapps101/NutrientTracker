@@ -225,3 +225,4 @@ export DATABASE_URL=postgres://nt_user:example_password@127.0.0.1:5432/nt_db && 
 
 # TODO:
 - convert diy date time to chrono::NaiveDateTime, to make use of postgres built in date time type
+- add run-web-server.sh script to run docker container frontend webserver
